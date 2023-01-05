@@ -1,25 +1,24 @@
 const express = require("express");
 const dotenv=require('dotenv')
-const dbConnect = require("./config/db/dbConnect");
 dotenv.config()
+
+const dbConnect = require("./config/db/dbConnect");
+const userRoutes = require("./route/users/usersRoute");
+const { errorHandler,notFound } = require("./middleware/error/errorHandler");
+errorHandler
+
 const app = express();
-const {userRegisterCtrl} = require('./controllers/users/usersControl')
+
 //DB
 dbConnect();
 //middleware
-
 app.use(express.json());
-//Register
-app.post("/api/users/register",userRegisterCtrl)
-//Login
-app.post("/api/users/login",(req,res)=>{
-    res.json({user:"user login"})
-})
-//fetch all users
-app.get("/api/users",(req,res)=>{
-    res.json({user:"fetch all user"})
-})
+//users routes
+app.use("/api/users",userRoutes)
 
+//error handlers
+app.use(notFound);
+app.use(errorHandler);
 
 //server
 const PORT = process.env.PORT || 5000;
