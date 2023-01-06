@@ -1,8 +1,8 @@
 const User = require("../../model/user/User")
 const expressAsyncHandler = require('express-async-handler')
 const generateToken = require("../../config/token/generateToken")
-const { validateMongodbId } = require("../utils/validae'Mongodb")
-validateMongodbId
+const { validateMongodbId } = require("../../utils/validae'Mongodb")
+
 //-------------------------------
 //register
 //-------------------------------

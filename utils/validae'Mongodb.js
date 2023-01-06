@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { validate } = require('../../model/user/User')
+const { validate } = require('../model/user/User')
 
 
 const validateMongodbId =id=>{
