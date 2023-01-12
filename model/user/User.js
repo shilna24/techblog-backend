@@ -1,5 +1,6 @@
 const mongoose=require('mongoose')
 const bcrypt=require('bcryptjs')
+const crypto = require("crypto")
 //create schema
 const userSchema=new mongoose.Schema({
     firstName:{
@@ -85,7 +86,7 @@ passwordResetExpires:Date,
 active:{
     type:Boolean,
     default:false,
-}
+},
 },
 {
 toJSON:{
@@ -101,6 +102,11 @@ timestamps:true
 //hash password
 
 userSchema.pre("save",async function(next){
+    if(!this.isModified('password')) 
+    {
+        next();
+    }
+    
     //hash password
 
     const salt=await bcrypt.genSalt(10)
@@ -113,6 +119,17 @@ userSchema.pre("save",async function(next){
 userSchema.methods.isPasswordMatched=async function(enteredPassword){
     return await bcrypt.compare(enteredPassword,this.password)
 } 
+//verify account
+userSchema.methods.createAccountVerificationToken=async function() {
+    //create a token
+    const verificationToken=crypto.randomBytes(32).toString("hex")
+    this.accountVerificationToken=crypto
+    .createHash("sha256")
+    .update(verificationToken)
+   .digest("hex")
+    this.accountVerificationTokenExpires=Date.now()+30 * 60 *1000//10 minutes
+    return verificationToken
+}
 
 //compile schema into model
 const User=mongoose.model("User",userSchema)
