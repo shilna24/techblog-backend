@@ -5,8 +5,11 @@ dotenv.config()
 
 const dbConnect = require("./config/db/dbConnect");
 const userRoutes = require("./route/users/usersRoute");
+
 const { errorHandler,notFound } = require("./middleware/error/errorHandler");
-errorHandler
+
+const postRoute = require("./route/posts/postRoute");
+
 
 const app = express();
 
@@ -16,13 +19,16 @@ dbConnect();
 app.use(express.json());
 //cors
 app.use(cors());
-//routes
+//users routes
 app.use("/api/users", userRoutes);
+//post routes
+app.use("/api/posts",postRoute)
+
 
 app.use(notFound);
 app.use(errorHandler);
-//users routes
-app.use("/api/users",userRoutes)
+
+
 
 //error handlers
 app.use(notFound);

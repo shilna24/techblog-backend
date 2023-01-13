@@ -5,6 +5,7 @@ const generateToken = require("../../config/token/generateToken")
 const { validateMongodbId } = require("../../utils/validateMongodbId")
 const nodemailer = require("nodemailer");
 const cloudinaryUploadImg = require("../../utils/cloudinary");
+const fs=require("fs");
 
 
 //-------------------------------
@@ -309,16 +310,17 @@ const generateVerificationToken = expressAsyncHandler(async (req, res) => {
   const profilePhotoUploadCtrl=expressAsyncHandler(async(req,res)=>{
     //find the login user
     const {_id}=req.user
-    
     //get the path to image
     const localPath =`public/images/profile/${req.file.filename}` 
     //upload the image to cloudinary
     const imgUploaded =await cloudinaryUploadImg(localPath)
+    
     const foundUser=await User.findByIdAndUpdate(_id,{
     profilePhoto:imgUploaded?.url,
     },{new:true})
-    
-    res.json(foundUser)
+    //remove the saved profile photo
+    fs.unlinkSync(localPath)
+    res.json(imgUploaded)
   })
 
 module.exports = {userRegisterCtrl,loginUserCtrl,fetchUserCtrl,deleteUserCtrl,fetchUserDetailsCtrl,userProfileCtrl,updateUserProfileCtrl,updateUserPasswordCtrl,followingUserCtrl,unfollowUserCtrl,blockUserCtrl,unblockUserCtrl,generateVerificationToken,accountVerification,profilePhotoUploadCtrl}
