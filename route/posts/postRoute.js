@@ -5,7 +5,8 @@ fetchAllPostsCtrl,
 fetchSinglePostCtrl,
 updatePostCtrl ,
 deletePostCtrl,
-toggleAddLikeToPostCtrl} = require('../../controllers/posts/postControl')
+toggleAddLikeToPostCtrl,
+toggleAddDislikeToPostCtrl} = require('../../controllers/posts/postControl')
 const authMiddleware = require('../../middleware/auth/authMiddleware')
 const { photoUpload,postImgResize } = require('../../middleware/uploads/photoUpload')
 photoUpload
@@ -17,4 +18,5 @@ postRoute.get('/:id',fetchSinglePostCtrl)
 postRoute.put('/:id',updatePostCtrl)
 postRoute.delete('/:id',deletePostCtrl)
 postRoute.put('/likes',authMiddleware,toggleAddLikeToPostCtrl)
+postRoute.put('/dislikes',authMiddleware,toggleAddDislikeToPostCtrl)
 module.exports=postRoute
