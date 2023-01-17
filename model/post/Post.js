@@ -7,7 +7,7 @@ const postSchema = new mongoose.Schema(
       required: [true, "Post title is required"],
       trim: true,
     },
-    //Created by only category
+    //Created by only admin
     category: {
       type: String,
       required: [true, "Post category is required"],
@@ -49,7 +49,7 @@ const postSchema = new mongoose.Schema(
     image: {
       type: String,
       default:
-        "https://cdn.pixabay.com/photo/2020/10/25/09/23/seagull-5683637_960_720.jpg",
+        "https://cdn.pixabay.com/photo/2017/08/25/13/36/code-geek-2680204_960_720.png",
     },
   },
   {

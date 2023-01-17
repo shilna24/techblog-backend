@@ -151,7 +151,7 @@ const updateUserPasswordCtrl=expressAsyncHandler(async(req,res)=>{
     //destructure the login user
     const {_id}=req.user
     const {password}=req.body
-    validateMongodbId(_id)
+    // validateMongodbId(_id)
 //find the user by _id
     const user=await User.findById(_id)
     if(password)
@@ -294,13 +294,13 @@ const generateVerificationToken = expressAsyncHandler(async (req, res) => {
   
     const userFound = await User.findOne({
       accountVerificationToken: hashedToken,
-      accountVerificationExpires: { $gt: new Date() },
+      accountVerificationTokenExpires: { $gt: new Date() },
     });
     if (!userFound) throw new Error("Token expired, try again later");
     //update the property to true
     userFound.isAccountVerified = true;
     userFound.accountVerificationToken = undefined;
-    userFound.accountVerificationExpires = undefined;
+    userFound.accountVerificationTokenExpires = undefined;
     await userFound.save();
     res.json(userFound);
   });

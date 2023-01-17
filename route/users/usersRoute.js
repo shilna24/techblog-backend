@@ -32,8 +32,9 @@ userRoutes.put("/verify-account",authMiddleware,accountVerification);
 userRoutes.put('/unblock-user/:id',authMiddleware,unblockUserCtrl)
 userRoutes.put('/block-user/:id',authMiddleware,blockUserCtrl)
 userRoutes.put('/unfollow',authMiddleware,unfollowUserCtrl)
-userRoutes.put('/:id',authMiddleware,updateUserProfileCtrl)
 userRoutes.put('/password',authMiddleware,updateUserPasswordCtrl)
+
+userRoutes.put('/:id',authMiddleware,updateUserProfileCtrl)
 
 
 module.exports=userRoutes

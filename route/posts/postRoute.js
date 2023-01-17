@@ -15,8 +15,9 @@ const postRoute=express.Router()
 postRoute.post('/',authMiddleware,photoUpload.single("image"),postImgResize,createPostCtrl)
 postRoute.get('/',fetchAllPostsCtrl)
 postRoute.get('/:id',fetchSinglePostCtrl)
-postRoute.put('/:id',updatePostCtrl)
-postRoute.delete('/:id',deletePostCtrl)
 postRoute.put('/likes',authMiddleware,toggleAddLikeToPostCtrl)
 postRoute.put('/dislikes',authMiddleware,toggleAddDislikeToPostCtrl)
+postRoute.put('/:id',updatePostCtrl)
+postRoute.delete('/:id',deletePostCtrl)
+
 module.exports=postRoute

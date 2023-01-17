@@ -9,6 +9,9 @@ const userRoutes = require("./route/users/usersRoute");
 const { errorHandler,notFound } = require("./middleware/error/errorHandler");
 
 const postRoute = require("./route/posts/postRoute");
+const categoryRoute = require("./route/category/categoryRoute");
+const commentRoute = require("./route/comments/commentRoute");
+
 
 
 const app = express();
@@ -23,7 +26,10 @@ app.use(cors());
 app.use("/api/users", userRoutes);
 //post routes
 app.use("/api/posts",postRoute)
-
+//category routes
+app.use("/api/category",categoryRoute)
+//comments routes
+app.use("/api/comments",commentRoute)
 
 app.use(notFound);
 app.use(errorHandler);

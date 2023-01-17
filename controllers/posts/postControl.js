@@ -10,7 +10,7 @@ const fs=require("fs")
 //--------------------------
 const createPostCtrl = expressAsyncHandler(async (req, res) => {
     const {_id}=req.user
-//   validateMongodbId(req.body.user);
+//  validateMongodbId(req.body.user);
   //check for bad words
  const filter = new Filter()
  const isProfane=filter.isProfane(req.body.title,req.body.description);
@@ -25,13 +25,14 @@ const createPostCtrl = expressAsyncHandler(async (req, res) => {
 
  const localPath =`public/images/posts/${req.file.filename}` 
     //upload the image to cloudinary
-    const imgUploaded =await cloudinaryUploadImg(localPath)
+     const imgUploaded =await cloudinaryUploadImg(localPath)
  
-//  console.log(isProfane)
+
   try {
-    // const post = await Post.create( {...req.body,image:imgUploaded?.url,
-    // user:_id});
-    res.json(imgUploaded);
+    const post = await Post.create( {...req.body,image:imgUploaded?.url,
+    user:_id
+  });
+    res.json(post);
 //remove uploaded image from cloudinary
 fs.unlinkSync(localPath)
   } catch (error) {
