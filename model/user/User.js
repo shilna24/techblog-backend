@@ -99,6 +99,21 @@ timestamps:true
 }
 
 )
+
+//virtual method to populate created post
+
+userSchema.virtual('posts',{
+    ref:'Post',
+    foreignField:'user',
+    localField:'_id'
+})
+
+//Account type
+userSchema.virtual('accountType').get(function (){
+    const totalFollowers=this.followers?.length
+    return totalFollowers>=5?"Pro Account":"Starter Account"
+})
+
 //hash password
 
 userSchema.pre("save",async function(next){
@@ -131,6 +146,15 @@ userSchema.methods.createAccountVerificationToken=async function() {
     return verificationToken
 }
 
-//compile schema into model
-const User=mongoose.model("User",userSchema)
-module.exports = User
+//Password reset/forget
+userSchema.methods.createPasswordResetToken = async function () {
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    this.passwordResetToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+  
+    this.passwordResetExpires = Date.now() + 30 * 60 * 1000; //10 minutes
+    return resetToken;
+  };
+  module.exports=mongoose.model("User",userSchema);

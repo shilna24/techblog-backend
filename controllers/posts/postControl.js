@@ -4,12 +4,20 @@ const Post = require("../../model/post/Post");
 const { validateMongodbId } = require("../../utils/validateMongodbId");
 const User=require("../../model/user/User");
 const cloudinaryUploadImg = require("../../utils/cloudinary");
-const fs=require("fs")
+const fs=require("fs");
+const blockUser = require("../../utils/blockUser");
+const SavedPost = require("../../model/savedPosts/SavedPosts");
+
+
 //--------------------------
 //create post
 //--------------------------
 const createPostCtrl = expressAsyncHandler(async (req, res) => {
+
+
     const {_id}=req.user
+    //display message if user is blocked
+    blockUser(req.user)
 //  validateMongodbId(req.body.user);
   //check for bad words
  const filter = new Filter()
@@ -22,19 +30,32 @@ const createPostCtrl = expressAsyncHandler(async (req, res) => {
     })
    throw new Error('Creating Failed because it contains profane words and you  have been blocked') 
  }
-
+//check user if their account is a starter account
+if(req?.user?.accontType==="Starter Account"&& req?.user?.postCount>=2)
+throw new Error('starter account can only create two posts.Get more followers')
  const localPath =`public/images/posts/${req.file.filename}` 
     //upload the image to cloudinary
      const imgUploaded =await cloudinaryUploadImg(localPath)
- 
 
   try {
-    const post = await Post.create( {...req.body,image:imgUploaded?.url,
+    const post = await Post.create( {
+    ...req.body,
+    image:imgUploaded?.url,
     user:_id
   });
-    res.json(post);
+  console.log(req.user)
+  //update the user post count
+  await User.findByIdAndUpdate(_id,{
+    $inc:{postCount:1}
+  },
+  {
+    new:true,
+  }
+  )
+  
 //remove uploaded image from cloudinary
 fs.unlinkSync(localPath)
+res.json(post);
   } catch (error) {
     res.json(error);
   }
@@ -43,12 +64,27 @@ fs.unlinkSync(localPath)
 //fetch all posts
 //--------------------------
 const fetchAllPostsCtrl = expressAsyncHandler(async (req, res) => {
+  const hasCategory=req.query.category
   try {
-    const posts = await Post.find({}).populate('user');
-    res.json(posts);
+    //check if it has a category
+    if (hasCategory)
+    {
+      const posts = await Post.find({category:hasCategory})
+      .populate('user')
+      .populate('comments').sort('-createdAt')
+      res.json(posts);
+    }else{
+      const posts = await Post.find({})
+      .populate('user')
+      .populate('comments').sort('-createdAt')
+      res.json(posts);
+    }
+    
   } catch (error) {
     res.json(error);
-  }})
+  }
+})
+  
 
 //--------------------------------
 //fetch a single post
@@ -60,7 +96,8 @@ const fetchSinglePostCtrl = expressAsyncHandler(async (req, res) => {
     const post = await Post.findById(id)
     .populate('user')
     .populate("dislikes")
-    .populate('likes');
+    .populate('likes')
+    .populate('comments');
     //update number of views
     await Post.findByIdAndUpdate(id,
     { 
@@ -219,10 +256,68 @@ const toggleAddDislikeToPostCtrl = expressAsyncHandler(async (req, res) => {
   }
 });
 
+// //-------------report a post---------------
+const reportPostController = expressAsyncHandler(async(req,res) =>{
+  //find the post to report
+  const { postId } = req.body;
+  const post = await Post.findById(postId);
+
+
+   //find the login user
+   const loginUserId = req?.user?._id;
+   const reportUserId = post?.reports?.includes(loginUserId)
+     //find the user has reported this post ?
+    const isReported = post?.isReported;
+    if (!isReported || !reportUserId ) {
+      const post = await Post.findByIdAndUpdate(
+        postId,
+        {
+          $push: { reports: loginUserId },
+          isReported: true,
+        },
+        { new: true }
+      );
+      res.json(post);
+    }else{
+      res.json(post)
+    }
+
+ })
+
+  //--------fetch reported posts---------------
+const fetchReportedPostController = expressAsyncHandler(async (req, res) => {
+  try {
+    const posts = await Post.find({isReported:true }).populate('user');
+    console.log(posts)
+    res.json(posts);
+  } catch (error) {
+    throw new Error(error.message);
+  }
+});
+
+//-------------Block post---------------
+const blockPostController = expressAsyncHandler(async (req, res) => {
+  const { postId } = req.body;
+
+  const post = await Post.findByIdAndUpdate(
+    postId,
+    {
+      isBlocked: true,
+    },
+    {
+      new: true,
+    }
+  );
+  res.json(post);
+});
+
 module.exports = { 
   createPostCtrl ,
   fetchAllPostsCtrl,
   fetchSinglePostCtrl,
   updatePostCtrl,
 deletePostCtrl,
-toggleAddLikeToPostCtrl,toggleAddDislikeToPostCtrl};
+toggleAddLikeToPostCtrl,toggleAddDislikeToPostCtrl,
+reportPostController,
+fetchReportedPostController,
+blockPostController};

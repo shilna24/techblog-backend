@@ -11,7 +11,6 @@ const postSchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, "Post category is required"],
-      default: "All",
     },
     isLiked: {
       type: Boolean,
@@ -37,6 +36,7 @@ const postSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -51,6 +51,22 @@ const postSchema = new mongoose.Schema(
       default:
         "https://cdn.pixabay.com/photo/2017/08/25/13/36/code-geek-2680204_960_720.png",
     },
+    isBlocked:{
+      type: Boolean,
+      default: false,
+    },
+    isReported: {
+      type: Boolean,
+      default: false,
+    },
+    reports:{
+      type:[
+          {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'User'
+          },
+      ],
+  },
   },
   {
     toJSON: {
@@ -62,8 +78,11 @@ const postSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-//compile
-const Post = mongoose.model("Post", postSchema);
-
-module.exports = Post;
+//populate comments
+postSchema.virtual("comments", {
+  ref: "Comment",
+  foreignField: "post",
+  localField: "_id",
+});
+///compile
+module.exports = mongoose.model("Post", postSchema);
