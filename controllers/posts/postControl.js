@@ -288,7 +288,6 @@ const reportPostController = expressAsyncHandler(async(req,res) =>{
 const fetchReportedPostController = expressAsyncHandler(async (req, res) => {
   try {
     const posts = await Post.find({isReported:true }).populate('user');
-    console.log(posts)
     res.json(posts);
   } catch (error) {
     throw new Error(error.message);
@@ -311,6 +310,75 @@ const blockPostController = expressAsyncHandler(async (req, res) => {
   res.json(post);
 });
 
+// -------------------save posts------------------------
+const savePostController = expressAsyncHandler(async (req, res) => {
+  const { postId } = req.body;
+  const userId = req?.user?._id;
+  console.log(postId, userId);
+  try {
+    const savedPosts = await SavedPost.findOne({ user: userId });
+    if (savedPosts) {
+      const isExist = savedPosts.post.includes(postId);
+      if (isExist) {
+        const newSavedPosts = await SavedPost.findOneAndUpdate(
+          { user: userId },
+          { $pull: { post: postId } },
+          { new: true }
+        );
+        res.json(newSavedPosts);
+      } else {
+        const newSavedPosts = await SavedPost.findOneAndUpdate(
+          {user: userId },
+          { $push: { post: postId } },
+          { new: true }
+        );
+        res.json(newSavedPosts);
+      }
+    } else {
+      const newSavedPosts = await SavedPost.create({
+       user: userId ,
+        post: postId,
+
+      });
+      res.json(newSavedPosts);
+    }
+  } catch (error) {
+    throw new Error(error.message);
+  }
+});
+
+//--------fetch saved posts---------------
+const fetchSavedPostController = expressAsyncHandler(async (req, res) => {
+  try {
+    // const posts = await SavedPost.find({ user: req.user.id }, { post: 1 });
+    const posts = await SavedPost.find({ user: req.user._id }).populate("post");
+    res.json(posts);
+  } catch (error) {
+    throw new Error(error.message);
+  }
+});
+
+//------------------delete saved post---------------
+
+const deleteSavedPostController = expressAsyncHandler(async (req, res) => {
+  const { postId } = req.params;
+  const userId = req.user._id;
+  try {
+    const posts = await SavedPost.findOneAndUpdate(
+      { user: userId },
+      {
+        $pull: { post: postId },
+      },
+      { new: true }
+    );
+    res.json(posts);
+  } catch (error) {
+    throw new Error(error.message);
+  }
+});
+
+
+
 module.exports = { 
   createPostCtrl ,
   fetchAllPostsCtrl,
@@ -320,4 +388,8 @@ deletePostCtrl,
 toggleAddLikeToPostCtrl,toggleAddDislikeToPostCtrl,
 reportPostController,
 fetchReportedPostController,
-blockPostController};
+blockPostController,
+savePostController,
+fetchSavedPostController,
+deleteSavedPostController,
+};
