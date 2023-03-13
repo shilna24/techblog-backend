@@ -47,7 +47,7 @@ const loginUserCtrl=expressAsyncHandler(async(req,res)=>{
 
     const userFound= await User.findOne({email})
     //check if blocked
-    if(userFound.isBlocked)throw new Error("Access denied you have been blocked")
+    if(userFound?.isBlocked)throw new Error("Access denied you have been blocked")
     //check if password is matches
     if(userFound && (await userFound.isPasswordMatched(password)))
     {
@@ -356,7 +356,6 @@ try {
   let mailOptions = {
     from: process.env.EMAIL,
       to: user?.email,
-      // to: "devblog.info2022@gmail.com",
       subject: "Reset password",
       message: "Reset your password now",
       html: resetURL,
@@ -371,9 +370,9 @@ try {
   });
   res.json(resetURL);
 } catch (error) {
-  res.json({
-    msg: `A verification message is successfully sent to ${user?.email}. Reset now within 10 minutes, ${resetURL}`,
-  });
+  // res.json({
+  //   msg: `A verification message is successfully sent to ${user?.email}. Reset now within 10 minutes, ${resetURL}`,
+  // });
 }
 });
 
