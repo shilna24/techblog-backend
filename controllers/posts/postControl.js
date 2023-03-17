@@ -43,7 +43,7 @@ throw new Error('starter account can only create two posts.Get more followers')
     image:imgUploaded?.url,
     user:_id
   });
-  console.log(req.user)
+  
   //update the user post count
   await User.findByIdAndUpdate(_id,{
     $inc:{postCount:1}
@@ -314,7 +314,7 @@ const blockPostController = expressAsyncHandler(async (req, res) => {
 const savePostController = expressAsyncHandler(async (req, res) => {
   const { postId } = req.body;
   const userId = req?.user?._id;
-  console.log(postId, userId);
+
   try {
     const savedPosts = await SavedPost.findOne({ user: userId });
     if (savedPosts) {

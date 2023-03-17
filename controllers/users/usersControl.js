@@ -73,7 +73,7 @@ const loginUserCtrl=expressAsyncHandler(async(req,res)=>{
 //users
 //-------------------------------
 const fetchUserCtrl=expressAsyncHandler(async(req,res)=>{
-    console.log(req.headers)
+    
     try
     {
         const users=await User.find({}).populate("posts")
@@ -263,7 +263,7 @@ const user=await User.findByIdAndUpdate(id,{
 //email verification
 //--------------------------
 const generateVerificationToken = expressAsyncHandler(async (req, res) => {
-    console.log("generateVerificationToken");
+    
     const { to, from, subject, message, resetURL } = req.body;
   
     // Step 1
@@ -278,7 +278,7 @@ const generateVerificationToken = expressAsyncHandler(async (req, res) => {
     });
     const loginUserId = req.user.id;
     const users = await User.findById(loginUserId);
-    console.log(users);
+    
     try {
       // Generate token
       const verificationToken = await users?.createAccountVerificationToken();
